@@ -153,7 +153,7 @@ Here, user is able to see different jobs which would be recommended to them acco
 ### Steps to follow for the installation:
 
 1. **Clone the Repository**
-    - Use the command `git clone https://github.com/ncsu-csc-510/Project2.git` to clone the repository.
+    - Use the command `git clone https://github.com/Group21-SWE/Project2.git` to clone the repository.
 
 2. **Start the Docker Engine**
     - Ensure that Docker is installed on your system. If not, you can download it from the official Docker website.
@@ -221,6 +221,6 @@ Please see our CONTRIBUTING.md for instructions on how to contribute to the repo
 
 ## Team Members
 
-- Anchal Kakadia
-- Aniruddha Kulkarni
-- Aranya Venugopal
+- Abhinav Sharma
+- Haven Brown
+- Trent Wiens
