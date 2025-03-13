@@ -14,7 +14,6 @@ from flask_cors import CORS, cross_origin
 from bs4 import BeautifulSoup
 import os
 from fake_useragent import UserAgent
-import pandas as pd
 # from jobsearch import get_ai_job_recommendations
 
 import yaml
@@ -1083,6 +1082,66 @@ def create_app():
         except Exception as e:
             print(f"Error comparing resume: {str(e)}")
             return jsonify({"error": "Failed to compare resume"}), 500
+    
+    @app.route("/career_roadmap", methods=["GET"])
+    def get_career_roadmap():
+        resume_file = None
+        try:
+            userid = get_userid_from_header()
+
+            user = Users.objects(id=userid).first()
+            if not user.resume.read():
+                # There is no existing resume
+                return jsonify({"message": "Please upload a resume"}), 400
+            else:
+                # Fetching the existing resume
+                resume_file = user.resume
+            # Use a PDF parsing library like PyPDF2 or pdfplumber to extract text
+            # For this example, we'll use PyPDF2
+            from PyPDF2 import PdfReader
+            
+            reader = PdfReader(resume_file)
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text()
+
+            # Use GPT to structure the resume content
+            headers = {
+                "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                "Content-Type": "application/json"
+            }
+            
+            prompt = f"""
+            Parse this resume text provide skill-building paths, certifications and real-time job market trens in JSON format:
+
+            {text}
+            
+            Return format:
+            {{
+                "skill-building paths": ["path1", "path2"],
+                "certifications": ["certification1", "certification2"],
+                "real-time job market trends": ["trend1", "trend2"]
+            }}
+            """
+            
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json={
+                    "model": "gpt-3.5-turbo",
+                    "messages": [
+                        {"role": "system", "content": "You are a resume parser and a professional software engineer."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0.7
+                }
+            )
+            print(f'Response is {response}')
+            return jsonify(response.json())
+
+        except Exception as e:
+            print(f"Error in generating career roadmap: {str(e)}")
+            return jsonify(f"error: Failed to generate career roadmap: {str(e)}"), 500
         
     @app.errorhandler(404)
     def page_not_found(error):  # Add error parameter
