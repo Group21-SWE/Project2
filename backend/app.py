@@ -14,7 +14,7 @@ from flask_cors import CORS, cross_origin
 
 import os
 from fake_useragent import UserAgent
-# from jobsearch import get_ai_job_recommendations
+
 
 import yaml
 
