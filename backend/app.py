@@ -4,6 +4,7 @@ The flask application for our program
 # importing required python libraries
 import json
 from datetime import datetime, timedelta
+import base64
 import hashlib
 import uuid
 import random
@@ -11,11 +12,9 @@ from flask import Flask, jsonify, request, send_file, redirect, url_for, session
 from flask_mongoengine import MongoEngine
 from flask_cors import CORS, cross_origin
 
-from bs4 import BeautifulSoup
 import os
 from fake_useragent import UserAgent
-import pandas as pd
-from jobsearch import get_ai_job_recommendations
+# from jobsearch import get_ai_job_recommendations
 
 import yaml
 
@@ -31,6 +30,110 @@ existing_endpoints = ["/applications", "/resume"]
 
 user_agent = UserAgent()
 
+# TODO: Remove from here
+def get_ai_job_recommendations(skills, job_levels, locations):
+    """
+    Get AI-powered job recommendations using a structured prompt
+    """
+    try:
+        # Format the user preferences for the prompt
+        skills_str = ", ".join([skill["value"] for skill in skills])
+        levels_str = ", ".join([level["value"] for level in job_levels])
+        locations_str = ", ".join([loc["value"] for loc in locations])
+
+        # Create a structured prompt for the AI
+        prompt = f"""
+        Create 5 realistic job postings as a JSON array. Each job should be a JSON object with these exact keys:
+        "Job Title", "Company Name", "Location", "Brief Job Description", "Required Skills", "Experience Level", "application URL"
+
+        Use these requirements:
+        Skills: {skills_str}
+        Experience Level: {levels_str}
+        Locations: {locations_str}
+
+        Ensure the response is valid JSON format and each job matches the candidate's skills and experience level.
+        """
+
+        headers = {
+            "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+            "Content-Type": "application/json"
+        }
+         
+        data = {
+            "model": "gpt-3.5-turbo",
+            "messages": [
+                {
+                    "role": "system", 
+                    "content": "You are a job matching assistant that creates realistic job recommendations. Always respond with valid JSON."
+                },
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.7,
+            "response_format": { "type": "json_object" }  # Force JSON response
+        }
+
+        print("Sending request to OpenAI API...")
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers=headers,
+            json=data
+        )
+
+        print(f"API Response Status: {response.status_code}")
+        
+        if response.status_code == 200:
+            # Parse the AI response
+            ai_response = response.json()
+            print("Raw API Response:", json.dumps(ai_response, indent=2))
+            
+            try:
+                # Extract the content from the API response
+                content = ai_response['choices'][0]['message']['content']
+                print("Content from API:", content)
+                
+                # Parse the content as JSON
+                job_listings = json.loads(content)
+                print("Parsed job listings:", json.dumps(job_listings, indent=2))
+                
+                # Format the jobs for your application
+                formatted_jobs = []
+                for job in job_listings['jobs']:  # Assuming the response has a 'jobs' array
+                    formatted_job = {
+                        "jobTitle": job["Job Title"],
+                        "companyName": job["Company Name"],
+                        "location": job["Location"],
+                        "description": job["Brief Job Description"],
+                        "requiredSkills": job["Required Skills"],
+                        "experienceLevel": job["Experience Level"],
+                        "data_share_url": job["application URL"]
+                    }
+                    formatted_jobs.append(formatted_job)
+
+                # Save the results for debugging
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                with open(f"ai_job_results_{timestamp}.json", "w") as f:
+                    json.dump(formatted_jobs, f, indent=2)
+                
+                print(f"Successfully formatted {len(formatted_jobs)} jobs")
+                return formatted_jobs
+
+            except json.JSONDecodeError as e:
+                print(f"JSON parsing error: {str(e)}")
+                print("Content that failed to parse:", content)
+                return []
+            except KeyError as e:
+                print(f"Key error while processing response: {str(e)}")
+                return []
+
+        else:
+            print(f"Error from OpenAI API: {response.status_code}")
+            print("Error response:", response.text)
+            return []
+
+    except Exception as e:
+        print(f"Error in AI job matching: {str(e)}")
+        print("Full error details:", e.__class__.__name__)
+        return []
 
 def create_app():
     """
@@ -1027,6 +1130,87 @@ def create_app():
         except Exception as e:
             print(f"Error saving analysis: {str(e)}")
             return jsonify({"error": "Internal server error"}), 500
+        
+    @app.route("/profilePhoto", methods=["POST"])
+    def upload_profile_photo():
+        """
+        Uploads or updates the profile photo for the user.
+        The file should be sent with the form field 'profilePhoto'.
+        """
+        try:
+            userid = get_userid_from_header()
+            try:
+                file = request.files["profilePhoto"]
+            except:
+                return jsonify({"error": "No profile photo file found in the input"}), 400
+
+            user = Users.objects(id=userid).first()
+            try:
+                if not user.profilePhoto.read():
+                    user.profilePhoto.put(file, filename=file.filename, content_type=file.content_type)
+                    user.save()
+                    return jsonify({"message": "Profile photo successfully uploaded"}), 200
+                else:
+                    user.profilePhoto.replace(file, filename=file.filename, content_type=file.content_type)
+                    user.save()
+                    return jsonify({"message": "Profile photo successfully replaced"}), 200
+            except Exception as inner_e:
+                user.profilePhoto.put(file, filename=file.filename, content_type=file.content_type)
+                user.save()
+                return jsonify({"message": "Profile photo successfully uploaded"}), 200
+        except Exception as e:
+            print(e)
+            return jsonify(f"error: Internal server error: {e}"), 500
+
+    @app.route("/profilePhoto", methods=["GET"])
+    def get_profile_photo_url():
+        """
+        Returns the URL for accessing the user's profile photo.
+        The returned URL points to the '/profilePhoto/file' endpoint.
+        """
+        try:
+            userid = get_userid_from_header()
+            user = Users.objects(id=userid).first()
+            if not user.profilePhoto or not user.profilePhoto.read():
+                return jsonify({"error": "No profile photo found"}), 404
+            user.profilePhoto.seek(0)
+            img = user.profilePhoto
+            img_bytes = img.read()
+            base64_encoded_image = base64.b64encode(img_bytes).decode('utf-8')
+            return jsonify({
+                'filename': img.filename,
+                'contentType': img.content_type,
+                'image': f'data:{img};base64,{base64_encoded_image}',
+            }), 200
+        except Exception as e:
+            print(e)
+            return jsonify(f"error: Could not fetch profile photo due to {e}"), 500
+
+    @app.route("/profilePhoto/file", methods=["GET"])
+    def serve_profile_photo():
+        """
+        Serves the actual profile photo file.
+        """
+        try:
+            userid = get_userid_from_header()
+            user = Users.objects(id=userid).first()
+            if not user.profilePhoto or not user.profilePhoto.read():
+                return jsonify({"error": "No profile photo found"}), 404
+            user.profilePhoto.seek(0)
+            filename = user.profilePhoto.filename
+            content_type = user.profilePhoto.contentType if user.profilePhoto.contentType else "application/octet-stream"
+            response = send_file(
+                user.profilePhoto,
+                mimetype=content_type,
+                download_name=filename,
+                as_attachment=True,
+            )
+            response.headers["x-filename"] = filename
+            response.headers["Access-Control-Expose-Headers"] = "x-filename"
+            return response, 200
+        except Exception as e:
+            print(e)
+            return jsonify({"error": "Internal server error"}), 500
 
     return app
 
@@ -1042,109 +1226,15 @@ app = create_app()
 #     profilePhoto = db.FileField()  # Add this field
 #     # ... rest of the fields ...
 
-# # Add these new routes inside create_app():
-
-#     @app.route("/profilePhoto", methods=["POST"])
-#     def upload_profile_photo():
-#         """
-#         Uploads or updates the profile photo for the user.
-#         The file should be sent with the form field 'profilePhoto'.
-#         """
-#         try:
-#             userid = get_userid_from_header()
-#             try:
-#                 file = request.files["profilePhoto"]
-#             except:
-#                 return jsonify({"error": "No profile photo file found in the input"}), 400
-
-#             user = Users.objects(id=userid).first()
-#             try:
-#                 if not user.profilePhoto.read():
-#                     user.profilePhoto.put(file, filename=file.filename, content_type=file.content_type)
-#                     user.save()
-#                     return jsonify({"message": "Profile photo successfully uploaded"}), 200
-#                 else:
-#                     user.profilePhoto.replace(file, filename=file.filename, content_type=file.content_type)
-#                     user.save()
-#                     return jsonify({"message": "Profile photo successfully replaced"}), 200
-#             except Exception as inner_e:
-#                 user.profilePhoto.put(file, filename=file.filename, content_type=file.content_type)
-#                 user.save()
-#                 return jsonify({"message": "Profile photo successfully uploaded"}), 200
-#         except Exception as e:
-#             print(e)
-#             return jsonify({"error": "Internal server error"}), 500
-
-#     @app.route("/profilePhoto", methods=["GET"])
-#     def get_profile_photo_url():
-#         """
-#         Returns the URL for accessing the user's profile photo.
-#         The returned URL points to the '/profilePhoto/file' endpoint.
-#         """
-#         try:
-#             userid = get_userid_from_header()
-#             user = Users.objects(id=userid).first()
-#             if not user.profilePhoto or not user.profilePhoto.read():
-#                 return jsonify({"error": "No profile photo found"}), 404
-#             user.profilePhoto.seek(0)
-#             photo_url = url_for("serve_profile_photo", _external=True)
-#             return jsonify({"url": photo_url}), 200
-#         except Exception as e:
-#             print(e)
-#             return jsonify({"error": "Internal server error"}), 500
-
-#     @app.route("/profilePhoto/file", methods=["GET"])
-#     def serve_profile_photo():
-#         """
-#         Serves the actual profile photo file.
-#         """
-#         try:
-#             userid = get_userid_from_header()
-#             user = Users.objects(id=userid).first()
-#             if not user.profilePhoto or not user.profilePhoto.read():
-#                 return jsonify({"error": "No profile photo found"}), 404
-#             user.profilePhoto.seek(0)
-#             filename = user.profilePhoto.filename
-#             content_type = user.profilePhoto.contentType if user.profilePhoto.contentType else "application/octet-stream"
-#             response = send_file(
-#                 user.profilePhoto,
-#                 mimetype=content_type,
-#                 download_name=filename,
-#                 as_attachment=True,
-#             )
-#             response.headers["x-filename"] = filename
-#             response.headers["Access-Control-Expose-Headers"] = "x-filename"
-#             return response, 200
-#         except Exception as e:
-#             print(e)
-#             return jsonify({"error": "Internal server error"}), 500
-
-
-# with open("application.yml") as f:
-#     info = yaml.load(f, Loader=yaml.FullLoader)
-#     username = info["USERNAME"]
-#     password = info["PASSWORD"]
-#     cluster_url = info["CLUSTER_URL"]
-#     # ca=certifi.where()
-#     app.config["MONGODB_SETTINGS"] = {
-#         "db": "appTracker",
-#         "host": f"mongodb+srv://{username}:{password}@{cluster_url}/",
-#     }
-
-# username = "test_user"
-# password = "test_pass"
-# cluster_url = "localhost"
 
 with open("application.yml") as f:
     info = yaml.load(f, Loader=yaml.FullLoader)
 
-MONGO_USERNAME = info.get("USERNAME", "default_user")
-MONGO_PASSWORD = info.get("PASSWORD", "default_pass")
-MONGO_CLUSTER = info.get("CLUSTER_URL", "cluster0.jmi6a.mongodb.net")
+CONNECTION_STRING = info.get("CONNECTION_STRING", "cluster0.jmi6a.mongodb.net")
 
 app.config["MONGODB_SETTINGS"] = {
     "db": "appTracker",
-    "host": f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_CLUSTER}/appTracker?retryWrites=true&w=majority",
+    "host": CONNECTION_STRING,
 }
 
 
@@ -1171,6 +1261,7 @@ class Users(db.Document):
     phone_number = db.StringField()
     address = db.StringField()
     analyses = db.ListField()  # Add analyses field
+    profilePhoto = db.FileField()
 
     def to_json(self):
         """
