@@ -28,6 +28,7 @@ const ProfilePage = (props) => {
 		waitingReferral: 0,
 		wishList: 0
 	});
+	const [profilePhoto, setProfilePhoto] = useState(null);
 
 	const profile = props.profile;
 	/**
@@ -52,6 +53,27 @@ const ProfilePage = (props) => {
 	}
 
 	useEffect(() => {
+		// Fetch profilePhoto
+		const fetchProfilePhoto = async () => {
+			try {
+				const response = await fetch('http://127.0.0.1:5000/profilePhoto', {
+					headers: {
+						'Authorization': 'Bearer ' + localStorage.getItem('token'),
+						'Access-Control-Allow-Origin': 'http://127.0.0.1:3000',
+						'Access-Control-Allow-Credentials': 'true'
+					}
+				});
+				
+				if (!response.ok) {
+					throw new Error('Failed to fetch profile photo');
+				}
+				
+				const data = await response.json();
+				setProfilePhoto(data['image']);
+			} catch (error) {
+				console.error('Error fetching profilePhoto:', error);
+			}
+		};
 		// Fetch past analyses from backend
 		const fetchAnalyses = async () => {
 			try {
@@ -83,6 +105,7 @@ const ProfilePage = (props) => {
 					'Access-Control-Allow-Credentials': 'true'
 				}
 			}),
+			fetchProfilePhoto(),
 			fetchAnalyses()
 		])
 		.then(async ([applicationsResponse]) => {
@@ -121,18 +144,8 @@ const ProfilePage = (props) => {
 							style={{ position: 'absolute', top: '15', right: '15' }}
 						/>
 						<div className='text-center my-3'>
-							<div
-								className='text-center mt-3 d-inline-flex justify-content-center align-items-center'
-								style={{
-									height: '200px',
-									width: '200px',
-									borderRadius: '100%',
-									backgroundColor: '#296E85',
-									color: '#fff',
-									boxShadow: '0px 5px 12px 10px rgba(0,0,0,0.1)'
-								}}
-							>
-								{getUserInitials(profile.fullName)}
+							<div>
+								<img src = {profilePhoto} width={200} height={200} alt='Large Pizza'/>
 							</div>
 						</div>
 						<div className='text-center mt-3'>

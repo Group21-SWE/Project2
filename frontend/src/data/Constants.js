@@ -1,4 +1,5 @@
 const PROFILE = {
+	PHOTO: 'profilePhoto',
 	NAME: 'fullName',
 	EMAIL: 'email',
 	UNIVERSITY: 'institution',
