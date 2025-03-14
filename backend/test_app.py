@@ -8,6 +8,7 @@ import pytest
 import json
 import datetime
 from flask_mongoengine import MongoEngine
+from unittest.mock import patch, MagicMock
 import yaml
 from app import create_app, Users
 
@@ -264,3 +265,319 @@ def test_resume(client, mocker, user):
     assert rv.status_code == 200
     rv = client.get("/resume", headers=header)
     assert rv.status_code == 200
+
+@patch('app.Users.objects')
+@patch('app.PdfReader')
+def test_get_career_roadmap_success(mock_pdf_reader, mock_user_objects, client):
+    # Mock user and resume
+    mock_user = MagicMock()
+    mock_user.resume.read.return_value = b"resume content"
+    mock_user_objects.first.return_value = mock_user
+
+    # Mock PDF reader
+    mock_reader = MagicMock()
+    mock_page = MagicMock()
+    mock_page.extract_text.return_value = "resume text"
+    mock_reader.pages = [mock_page]
+    mock_pdf_reader.return_value = mock_reader
+
+    # Mock OpenAI API response
+    with patch('requests.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            'choices': [{'message': {'content': '{"skill-building paths": ["path1"], "certifications": ["cert1"], "real-time job market trends": ["trend1"]}'}}]
+        }
+
+        response = client.get('/career_roadmap', headers={'Authorization': 'Bearer token'})
+        assert response.status_code == 200
+        assert json.loads(response.data) == {
+            "skill-building paths": ["path1"],
+            "certifications": ["cert1"],
+            "real-time job market trends": ["trend1"]
+        }
+
+@patch('app.Users.objects')
+def test_get_career_roadmap_no_resume(mock_user_objects, client):
+    # Mock user with no resume
+    mock_user = MagicMock()
+    mock_user.resume.read.return_value = b""
+    mock_user_objects.first.return_value = mock_user
+
+    response = client.get('/career_roadmap', headers={'Authorization': 'Bearer token'})
+    assert response.status_code == 400
+    assert json.loads(response.data) == {"message": "Please upload a resume"}
+
+@patch('app.Users.objects')
+def test_get_career_roadmap_user_not_found(mock_user_objects, client):
+    # Mock user not found
+    mock_user_objects.first.return_value = None
+
+    response = client.get('/career_roadmap', headers={'Authorization': 'Bearer token'})
+    assert response.status_code == 401
+
+@patch('app.Users.objects')
+@patch('app.PdfReader')
+def test_get_career_roadmap_pdf_parsing_error(mock_pdf_reader, mock_user_objects, client):
+    # Mock user and resume
+    mock_user = MagicMock()
+    mock_user.resume.read.return_value = b"resume content"
+    mock_user_objects.first.return_value = mock_user
+
+    # Mock PDF reader to raise an error
+    mock_pdf_reader.side_effect = Exception("PDF parsing error")
+
+    response = client.get('/career_roadmap', headers={'Authorization': 'Bearer token'})
+    assert response.status_code == 500
+
+@patch('app.Users.objects')
+@patch('app.PdfReader')
+def test_get_career_roadmap_openai_error(mock_pdf_reader, mock_user_objects, client):
+    # Mock user and resume
+    mock_user = MagicMock()
+    mock_user.resume.read.return_value = b"resume content"
+    mock_user_objects.first.return_value = mock_user
+
+    # Mock PDF reader
+    mock_reader = MagicMock()
+    mock_page = MagicMock()
+    mock_page.extract_text.return_value = "resume text"
+    mock_reader.pages = [mock_page]
+    mock_pdf_reader.return_value = mock_reader
+
+    # Mock OpenAI API to return an error
+    with patch('requests.post') as mock_post:
+        mock_post.return_value.status_code = 500
+
+        response = client.get('/career_roadmap', headers={'Authorization': 'Bearer token'})
+        assert response.status_code == 500
+
+@patch('app.Users.objects')
+@patch('app.PdfReader')
+def test_get_career_roadmap_invalid_json_response(mock_pdf_reader, mock_user_objects, client):
+    # Mock user and resume
+    mock_user = MagicMock()
+    mock_user.resume.read.return_value = b"resume content"
+    mock_user_objects.first.return_value = mock_user
+
+    # Mock PDF reader
+    mock_reader = MagicMock()
+    mock_page = MagicMock()
+    mock_page.extract_text.return_value = "resume text"
+    mock_reader.pages = [mock_page]
+    mock_pdf_reader.return_value = mock_reader
+
+    # Mock OpenAI API to return invalid JSON
+    with patch('requests.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            'choices': [{'message': {'content': 'invalid json'}}]
+        }
+
+        response = client.get('/career_roadmap', headers={'Authorization': 'Bearer token'})
+        assert response.status_code == 500
+
+@patch('app.Users.objects')
+@patch('app.PdfReader')
+def test_get_career_roadmap_missing_fields_in_response(mock_pdf_reader, mock_user_objects, client):
+    # Mock user and resume
+    mock_user = MagicMock()
+    mock_user.resume.read.return_value = b"resume content"
+    mock_user_objects.first.return_value = mock_user
+
+    # Mock PDF reader
+    mock_reader = MagicMock()
+    mock_page = MagicMock()
+    mock_page.extract_text.return_value = "resume text"
+    mock_reader.pages = [mock_page]
+    mock_pdf_reader.return_value = mock_reader
+
+    # Mock OpenAI API to return JSON with missing fields
+    with patch('requests.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            'choices': [{'message': {'content': '{"skill-building paths": ["path1"]}'}}]
+        }
+
+        response = client.get('/career_roadmap', headers={'Authorization': 'Bearer token'})
+        assert response.status_code == 500
+
+@patch('app.Users.objects')
+@patch('app.PdfReader')
+def test_get_career_roadmap_empty_response(mock_pdf_reader, mock_user_objects, client):
+    # Mock user and resume
+    mock_user = MagicMock()
+    mock_user.resume.read.return_value = b"resume content"
+    mock_user_objects.first.return_value = mock_user
+
+    # Mock PDF reader
+    mock_reader = MagicMock()
+    mock_page = MagicMock()
+    mock_page.extract_text.return_value = "resume text"
+    mock_reader.pages = [mock_page]
+    mock_pdf_reader.return_value = mock_reader
+
+    # Mock OpenAI API to return empty response
+    with patch('requests.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            'choices': [{'message': {'content': '{}'}}]
+        }
+
+        response = client.get('/career_roadmap', headers={'Authorization': 'Bearer token'})
+        assert response.status_code == 500
+
+@patch('app.Users.objects')
+@patch('app.PdfReader')
+def test_get_career_roadmap_invalid_response_format(mock_pdf_reader, mock_user_objects, client):
+    # Mock user and resume
+    mock_user = MagicMock()
+    mock_user.resume.read.return_value = b"resume content"
+    mock_user_objects.first.return_value = mock_user
+
+    # Mock PDF reader
+    mock_reader = MagicMock()
+    mock_page = MagicMock()
+    mock_page.extract_text.return_value = "resume text"
+    mock_reader.pages = [mock_page]
+    mock_pdf_reader.return_value = mock_reader
+
+    # Mock OpenAI API to return invalid format
+    with patch('requests.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            'choices': [{'message': {'content': 'not a json'}}]
+        }
+
+        response = client.get('/career_roadmap', headers={'Authorization': 'Bearer token'})
+        assert response.status_code == 500
+
+@patch('app.Users.objects')
+@patch('app.PdfReader')
+def test_get_career_roadmap_unexpected_error(mock_pdf_reader, mock_user_objects, client):
+    # Mock user and resume
+    mock_user = MagicMock()
+    mock_user.resume.read.return_value = b"resume content"
+    mock_user_objects.first.return_value = mock_user
+
+    # Mock PDF reader
+    mock_reader = MagicMock()
+    mock_page = MagicMock()
+    mock_page.extract_text.return_value = "resume text"
+    mock_reader.pages = [mock_page]
+    mock_pdf_reader.return_value = mock_reader
+
+    # Mock OpenAI API to raise an unexpected error
+    with patch('requests.post') as mock_post:
+        mock_post.side_effect = Exception("Unexpected error")
+
+        response = client.get('/career_roadmap', headers={'Authorization': 'Bearer token'})
+        assert response.status_code == 500
+
+@patch('app.Users.objects')
+def test_upload_profile_photo_success(mock_user_objects, client):
+    # Mock user
+    mock_user = MagicMock()
+    mock_user.profilePhoto.read.return_value = b""
+    mock_user_objects.first.return_value = mock_user
+
+    # Mock file upload
+    response = client.post('/profilePhoto', headers={'Authorization': 'Bearer token'}, data={'profilePhoto': (MagicMock(), 'test.jpg')})
+    assert response.status_code == 200
+    assert json.loads(response.data) == {"message": "Profile photo successfully uploaded"}
+
+@patch('app.Users.objects')
+def test_upload_profile_photo_replace_existing(mock_user_objects, client):
+    # Mock user with existing photo
+    mock_user = MagicMock()
+    mock_user.profilePhoto.read.return_value = b"existing photo"
+    mock_user_objects.first.return_value = mock_user
+
+    # Mock file upload
+    response = client.post('/profilePhoto', headers={'Authorization': 'Bearer token'}, data={'profilePhoto': (MagicMock(), 'test.jpg')})
+    assert response.status_code == 200
+    assert json.loads(response.data) == {"message": "Profile photo successfully replaced"}
+
+@patch('app.Users.objects')
+def test_upload_profile_photo_no_file(mock_user_objects, client):
+    # Mock user
+    mock_user = MagicMock()
+    mock_user_objects.first.return_value = mock_user
+
+    # No file uploaded
+    response = client.post('/profilePhoto', headers={'Authorization': 'Bearer token'})
+    assert response.status_code == 400
+    assert json.loads(response.data) == {"error": "No profile photo file found in the input"}
+
+@patch('app.Users.objects')
+def test_upload_profile_photo_user_not_found(mock_user_objects, client):
+    # Mock user not found
+    mock_user_objects.first.return_value = None
+
+    response = client.post('/profilePhoto', headers={'Authorization': 'Bearer token'}, data={'profilePhoto': (MagicMock(), 'test.jpg')})
+    assert response.status_code == 401
+
+@patch('app.Users.objects')
+def test_get_profile_photo_url_success(mock_user_objects, client):
+    # Mock user with profile photo
+    mock_user = MagicMock()
+    mock_user.profilePhoto.read.return_value = b"photo content"
+    mock_user.profilePhoto.filename = "test.jpg"
+    mock_user.profilePhoto.content_type = "image/jpeg"
+    mock_user_objects.first.return_value = mock_user
+
+    response = client.get('/profilePhoto', headers={'Authorization': 'Bearer token'})
+    assert response.status_code == 200
+    assert 'filename' in json.loads(response.data)
+    assert 'contentType' in json.loads(response.data)
+    assert 'image' in json.loads(response.data)
+
+@patch('app.Users.objects')
+def test_get_profile_photo_url_no_photo(mock_user_objects, client):
+    # Mock user with no profile photo
+    mock_user = MagicMock()
+    mock_user.profilePhoto.read.return_value = b""
+    mock_user_objects.first.return_value = mock_user
+
+    response = client.get('/profilePhoto', headers={'Authorization': 'Bearer token'})
+    assert response.status_code == 404
+    assert json.loads(response.data) == {"error": "No profile photo found"}
+
+@patch('app.Users.objects')
+def test_get_profile_photo_url_user_not_found(mock_user_objects, client):
+    # Mock user not found
+    mock_user_objects.first.return_value = None
+
+    response = client.get('/profilePhoto', headers={'Authorization': 'Bearer token'})
+    assert response.status_code == 401
+
+@patch('app.Users.objects')
+def test_serve_profile_photo_success(mock_user_objects, client):
+    # Mock user with profile photo
+    mock_user = MagicMock()
+    mock_user.profilePhoto.read.return_value = b"photo content"
+    mock_user.profilePhoto.filename = "test.jpg"
+    mock_user.profilePhoto.content_type = "image/jpeg"
+    mock_user_objects.first.return_value = mock_user
+
+    response = client.get('/profilePhoto/file', headers={'Authorization': 'Bearer token'})
+    assert response.status_code == 200
+    assert response.headers['x-filename'] == "test.jpg"
+
+@patch('app.Users.objects')
+def test_serve_profile_photo_no_photo(mock_user_objects, client):
+    # Mock user with no profile photo
+    mock_user = MagicMock()
+    mock_user.profilePhoto.read.return_value = b""
+    mock_user_objects.first.return_value = mock_user
+
+    response = client.get('/profilePhoto/file', headers={'Authorization': 'Bearer token'})
+    assert response.status_code == 404
+    assert json.loads(response.data) == {"error": "No profile photo found"}
+
+@patch('app.Users.objects')
+def test_serve_profile_photo_user_not_found(mock_user_objects, client):
+    # Mock user not found
+    mock_user_objects.first.return_value = None
+
+    response = client.get('/profilePhoto/file', headers={'Authorization': 'Bearer token'})
+    assert response.status_code == 401
