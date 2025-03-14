@@ -1,5 +1,10 @@
 authlib==1.2.1
+fake_useragent
 flask==2.2.2
+flask_cors
+flask_mongoengine
 mongoengine==0.27.0
 pymongo==4.5.0
+PyYAML
 requests==2.25.0
+werkzeug==2.2.2

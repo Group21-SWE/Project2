@@ -9,6 +9,7 @@ import ManageResumePage from './resume/ManageResumePage';
 import ProfilePage from './profile/ProfilePage';
 import axios from 'axios';
 import MatchesPage from './matches/MatchesPage';
+import CareerRoadmapPage from './careerroadmap/careerroadmap';
 
 export default class App extends React.Component {
 	constructor(props) {
@@ -19,7 +20,8 @@ export default class App extends React.Component {
 			LoginPage: <LoginPage />,
 			ManageResumePage: <ManageResumePage />,
 			ProfilePage: <ProfilePage />,
-			MatchesPage: <MatchesPage />
+			MatchesPage: <MatchesPage />,
+			CareerRoadmapPage: <CareerRoadmapPage />
 		};
 		this.state = {
 			currentPage: <LoginPage />,
