@@ -175,6 +175,11 @@ Here, user is able to see different jobs which would be recommended to them acco
         docker-compose up
         ```
 
+5. **Navigate to**
+    ```
+    http://localhost:3000/?
+    ```
+
 ## Hosting the Database:
 
 ### Local MongoDB:
