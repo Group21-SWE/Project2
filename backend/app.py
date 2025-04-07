@@ -146,16 +146,16 @@ def create_app():
     CORS(app)
 
     # get all the variables from the application.yml file
-    # with open("application.yml") as f:
-    #     info = yaml.load(f, Loader=yaml.FullLoader)
-    #     GOOGLE_CLIENT_ID = info["GOOGLE_CLIENT_ID"]
-    #     GOOGLE_CLIENT_SECRET = info["GOOGLE_CLIENT_SECRET"]
-    #     CONF_URL = info["CONF_URL"]
-    #     app.secret_key = info['SECRET_KEY']
-
     with open("application.yml") as f:
         info = yaml.load(f, Loader=yaml.FullLoader)
-        app.secret_key = info.get("SECRET_KEY", "default_secret_key")  # Use a default value if not found
+        GOOGLE_CLIENT_ID = info["GOOGLE_CLIENT_ID"]
+        GOOGLE_CLIENT_SECRET = info["GOOGLE_CLIENT_SECRET"]
+        CONF_URL = info["CONF_URL"]
+        app.secret_key = info['SECRET_KEY']
+
+    # with open("application.yml") as f:
+    #     info = yaml.load(f, Loader=yaml.FullLoader)
+    #     app.secret_key = info.get("SECRET_KEY", "default_secret_key")  # Use a default value if not found
 
 
     app.config["CORS_HEADERS"] = "Content-Type"
@@ -367,8 +367,11 @@ def create_app():
             user.save()
             # del user.to_json()["password", "authTokens"]
             return jsonify(user.to_json()), 200
-        except:
-            return jsonify({"error": "Internal server error"}), 500
+        except Exception as e:
+            print(f"Signup error: {str(e)}")  # Detailed error logging
+            import traceback
+            print(traceback.format_exc())  # Print full stack trace
+            return jsonify({"error": str(e)}), 500
 
     @app.route("/getProfile", methods=["GET"])
     def get_profile_data():
@@ -1294,7 +1297,7 @@ CONNECTION_STRING = info.get("CONNECTION_STRING", "cluster0.jmi6a.mongodb.net")
 
 app.config["MONGODB_SETTINGS"] = {
     "db": "appTracker",
-    "host": CONNECTION_STRING,
+    "host": 'localhost',
 }
 
 
