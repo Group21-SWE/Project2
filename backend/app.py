@@ -1297,7 +1297,7 @@ CONNECTION_STRING = info.get("CONNECTION_STRING", "cluster0.jmi6a.mongodb.net")
 
 app.config["MONGODB_SETTINGS"] = {
     "db": "appTracker",
-    "host": 'localhost',
+    "host": CONNECTION_STRING,
 }
 
 
