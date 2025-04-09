@@ -36,6 +36,7 @@ def get_ai_job_recommendations(skills, job_levels, locations):
     Get AI-powered job recommendations using a structured prompt
     """
     try:
+        print("running!!!")
         # Format the user preferences for the prompt
         skills_str = ", ".join([skill["value"] for skill in skills])
         levels_str = ", ".join([level["value"] for level in job_levels])
