@@ -7,15 +7,27 @@ export default class InterviewPrepPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      jobDescription: '',
-      interviewQuestions: [],
-      loading: false,
-      error: null
-    };
+        jobDescription: '',
+        interviewQuestions: [],
+        answers: {}, // Store answers by question index
+        feedback: {}, // Store feedback by question index
+        loadingFeedback: {}, // Track loading state for each question
+        loading: false,
+        error: null
+      };
   }
 
   handleInputChange = (event) => {
     this.setState({ jobDescription: event.target.value });
+  }
+
+  handleAnswerChange = (index, value) => {
+    this.setState(prevState => ({
+      answers: {
+        ...prevState.answers,
+        [index]: value
+      }
+    }));
   }
 
   generateInterviewPrep = async () => {
@@ -78,8 +90,77 @@ export default class InterviewPrepPage extends Component {
     }
   }
 
+  getFeedbackOnAnswer = async (questionIndex) => {
+    const question = this.state.interviewQuestions[questionIndex];
+    const answer = this.state.answers[questionIndex];
+    
+    if (!answer || !answer.trim()) {
+      return;
+    }
+
+    // Set loading state for this specific question
+    this.setState(prevState => ({
+      loadingFeedback: {
+        ...prevState.loadingFeedback,
+        [questionIndex]: true
+      }
+    }));
+
+    try {
+      // Initialize the Gemini API
+      const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
+      const genAI = new GoogleGenerativeAI(API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+      // Create prompt for feedback
+      const prompt = `
+        You are an expert interview coach. Evaluate the following answer to an interview question.
+        Provide constructive feedback highlighting strengths and areas for improvement.
+        Keep your feedback concise and actionable, approximately 3-4 sentences.
+        
+        Interview Question: ${question.question}
+        
+        Interviewer's expectations: ${question.hint || "No specific hint provided."}
+        
+        Candidate's Answer: ${answer}
+        
+        Feedback:
+      `;
+
+      // Generate feedback with Gemini
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const feedbackText = response.text();
+
+      // Save the feedback
+      this.setState(prevState => ({
+        feedback: {
+          ...prevState.feedback,
+          [questionIndex]: feedbackText
+        },
+        loadingFeedback: {
+          ...prevState.loadingFeedback,
+          [questionIndex]: false
+        }
+      }));
+
+    } catch (error) {
+      console.error('Error generating feedback:', error);
+      this.setState(prevState => ({
+        feedback: {
+          ...prevState.feedback,
+          [questionIndex]: "Error generating feedback. Please try again."
+        },
+        loadingFeedback: {
+          ...prevState.loadingFeedback,
+          [questionIndex]: false
+        }
+      }));
+    }
+  }
+
   render() {
-    const { jobDescription, interviewQuestions, loading, error } = this.state;
+    const { jobDescription, interviewQuestions, answers, feedback, loading, loadingFeedback, error } = this.state;
 
     return (
       <Container>
@@ -148,12 +229,62 @@ export default class InterviewPrepPage extends Component {
                 <Card.Body>
                   <ol className="interview-questions-list">
                     {interviewQuestions.map((question, index) => (
-                      <li key={index} className="mb-3">
-                        <div className="question">{question.question}</div>
+                      <li key={index} className="mb-5">
+                        {/* Question */}
+                        <div className="question font-weight-bold mb-2">{question.question}</div>
+                        
+                        {/* Hint */}
                         {question.hint && (
-                          <div className="hint text-muted mt-2">
+                          <div className="hint text-muted mb-3">
                             <small><strong>Hint:</strong> {question.hint}</small>
                           </div>
+                        )}
+                        
+                        {/* Answer text area */}
+                        <Form.Group className="mt-3">
+                          <Form.Label>Your Answer:</Form.Label>
+                          <Form.Control
+                            as="textarea"
+                            rows={3}
+                            value={answers[index] || ''}
+                            onChange={(e) => this.handleAnswerChange(index, e.target.value)}
+                            placeholder="Type your answer here..."
+                          />
+                        </Form.Group>
+                        
+                        {/* Submit button */}
+                        <Button 
+                          variant="outline-primary"
+                          size="sm"
+                          className="mt-2"
+                          onClick={() => this.getFeedbackOnAnswer(index)}
+                          disabled={loadingFeedback[index] || !answers[index]}
+                        >
+                          {loadingFeedback[index] ? (
+                            <>
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                                className="me-2"
+                              />
+                              Getting feedback...
+                            </>
+                          ) : (
+                            'Get Feedback'
+                          )}
+                        </Button>
+                        
+                        {/* Feedback display */}
+                        {feedback[index] && (
+                          <Card className="mt-3 bg-light">
+                            <Card.Body>
+                              <Card.Title className="h6">Feedback:</Card.Title>
+                              <Card.Text>{feedback[index]}</Card.Text>
+                            </Card.Body>
+                          </Card>
                         )}
                       </li>
                     ))}
