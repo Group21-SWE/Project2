@@ -168,14 +168,17 @@ Here, user is able to see different jobs which would be recommended to them acco
         ```
         docker build -f dockerfile.client -t ats-client .
         ```
+4. **Generate Gemini API Key**
+    - You'll need to get an API key from https://makersuite.google.com/app/apikey
+    - This project uses the model gemini-2.0-flash, which is currently free.
 
-4. **Run Docker Compose**
+5. **Run Docker Compose**
     - Finally, run the following command to start the application:
         ```
-        docker-compose up
+        GEMINI_API_KEY=<your-key> docker-compose up —watch
         ```
 
-5. **Navigate to**
+6. **Navigate to**
     ```
     http://localhost:3000/?
     ```
@@ -204,10 +207,10 @@ mongodb
 
 1. [Create account](https://account.mongodb.com/account/register) for MongoDB
 
-- **If current MongoDB Atlas owner adds your username/password to the cluster, skip to step 4** \*
+    - **If current MongoDB Atlas owner adds your username/password to the cluster, skip to step 4** \*
 
 2. Follow MongoDB Atlas [Setup Guide](https://docs.atlas.mongodb.com/getting-started/) to create a database collection for hosting applications
-3. Create application.yml in the backend folder with the following content:
+3. Create application.yml in the backend folder with the following contents:
    ```
    GOOGLE_CLIENT_ID : <Oauth Google ID>
    GOOGLE_CLIENT_SECRET : <Oauth Google Secret>
@@ -276,11 +279,13 @@ mongodb
     </ul>
     <br>
     </details>
+
+    **Note that application.yml should remain private on your local machine.**
 4. In app.py set 'host' string to your MongoDB Atlas connection string. Replace the username and password with {username} and {password} respectively
 6. For testing through CI to function as expected, repository secrets will need to be added through the settings. Create individual secrets with the following keys/values:
 
-MONGO_USER: <MongoDB Atlas cluster username>
-MONGO_PASS: <MongoDB Atlas cluster password>
+    MONGO_USER: <MongoDB Atlas cluster username>
+    MONGO_PASS: <MongoDB Atlas cluster password>
 
 ## License
 
