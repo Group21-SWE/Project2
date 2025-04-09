@@ -168,20 +168,35 @@ Here, user is able to see different jobs which would be recommended to them acco
         ```
         docker build -f dockerfile.client -t ats-client .
         ```
+4. **Generate Gemini API Key**
+    - You'll need to get an API key from https://makersuite.google.com/app/apikey
+    - This project uses the model gemini-2.0-flash, which is currently free.
 
-4. **Run Docker Compose**
+5. **Run Docker Compose**
     - Finally, run the following command to start the application:
         ```
-        docker-compose up
+        GEMINI_API_KEY=<your-key> docker-compose up —watch
         ```
+
+6. **Navigate to**
+    ```
+    http://localhost:3000/?
+    ```
 
 ## Hosting the Database:
 
 ### Local MongoDB:
 
 1. Download [MongoDB Community Server](https://docs.mongodb.com/manual/administration/install-community/)
+    - Recommended Homebrew installation
 2. Follow the [Installion Guide](https://docs.mongodb.com/guides/server/install/)
 3. In app.py set 'host' string to 'localhost'
+    ```
+    app.config["MONGODB_SETTINGS"] = {
+        "db": "appTracker",
+        "host": 'localhost',
+    }
+    ```
 4. Run the local database:
 
 mongodb
@@ -192,10 +207,10 @@ mongodb
 
 1. [Create account](https://account.mongodb.com/account/register) for MongoDB
 
-- **If current MongoDB Atlas owner adds your username/password to the cluster, skip to step 4** \*
+    - **If current MongoDB Atlas owner adds your username/password to the cluster, skip to step 4** \*
 
 2. Follow MongoDB Atlas [Setup Guide](https://docs.atlas.mongodb.com/getting-started/) to create a database collection for hosting applications
-3. Create application.yml in the backend folder with the following content:
+3. Create application.yml in the backend folder with the following contents:
    ```
    GOOGLE_CLIENT_ID : <Oauth Google ID>
    GOOGLE_CLIENT_SECRET : <Oauth Google Secret>
@@ -205,11 +220,72 @@ mongodb
    PASSWORD : <MongoDB Atlas Password>
    CLUSTER_URL : <MongoDB Cluster URL>
    ```
+    <details>
+    <summary>Claude 3.7 Sonnet Assistance: How to obtain application.yml fields</summary>
+    <br>
+    <h3>Obtaining Values for application.yml Fields</h3>
+    <p>Here's how to obtain each field required in your application.yml file:</p>
+
+    <h4>SECRET_KEY</h4>
+    <ul>
+    <li>Generate a secure random string (can be any string of your choice)</li>
+    <li>You can use Python to generate one: <code>python -c "import secrets; print(secrets.token_hex(16))"</code></li>
+    </ul>
+
+    <h4>CONNECTION_STRING</h4>
+    <ul>
+    <li>This appears to be set by default to "cluster0.jmi6a.mongodb.net"</li>
+    <li>If using a different MongoDB Atlas cluster, you'll find this in your connection string</li>
+    </ul>
+
+    <h4>GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET</h4>
+    <ol>
+    <li>Go to the <a href="https://console.cloud.google.com/">Google Cloud Console</a></li>
+    <li>Create a new project (or select an existing one)</li>
+    <li>Navigate to "APIs & Services" > "Credentials"</li>
+    <li>Click "Create Credentials" > "OAuth client ID"</li>
+    <li>Configure the OAuth consent screen</li>
+    <li>Select "Web application" as the application type</li>
+    <li>Add authorized redirect URIs (e.g., http://localhost:3000/oauth/callback)</li>
+    <li>Click "Create"</li>
+    <li>You'll receive your Client ID and Client Secret</li>
+    </ol>
+
+    <h4>CONF_URL</h4>
+    <ul>
+    <li>This is already correctly set to the standard Google OpenID configuration URL</li>
+    </ul>
+
+    <h4>MongoDB Atlas Credentials (USERNAME, PASSWORD, CLUSTER_URL)</h4>
+    <ol>
+    <li>Sign up or log in to <a href="https://www.mongodb.com/cloud/atlas">MongoDB Atlas</a></li>
+    <li>Create a new cluster or use an existing one</li>
+    <li>Click "Connect" on your cluster</li>
+    <li>Choose "Connect your application"</li>
+    <li>The connection string will look like: <code>mongodb+srv://&lt;username&gt;:&lt;password&gt;@&lt;cluster-url&gt;/test?retryWrites=true&w=majority</code></li>
+    <li>From this string:
+        <ul>
+        <li>USERNAME is your MongoDB Atlas user</li>
+        <li>PASSWORD is your MongoDB Atlas user password</li>
+        <li>CLUSTER_URL is the domain after the @ symbol (before the slash)</li>
+        </ul>
+    </li>
+    </ol>
+
+    <p><strong>Note:</strong> For local development with MongoDB running on your machine, you can set:</p>
+    <ul>
+    <li>USERNAME and PASSWORD to your local MongoDB credentials</li>
+    <li>CLUSTER_URL can be empty or "localhost"</li>
+    </ul>
+    <br>
+    </details>
+
+    **Note that application.yml should remain private on your local machine.**
 4. In app.py set 'host' string to your MongoDB Atlas connection string. Replace the username and password with {username} and {password} respectively
 6. For testing through CI to function as expected, repository secrets will need to be added through the settings. Create individual secrets with the following keys/values:
 
-MONGO_USER: <MongoDB Atlas cluster username>
-MONGO_PASS: <MongoDB Atlas cluster password>
+    MONGO_USER: <MongoDB Atlas cluster username>
+    MONGO_PASS: <MongoDB Atlas cluster password>
 
 ## License
 

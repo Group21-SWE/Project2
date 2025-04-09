@@ -10,6 +10,7 @@ import ProfilePage from './profile/ProfilePage';
 import axios from 'axios';
 import MatchesPage from './matches/MatchesPage';
 import CareerRoadmapPage from './careerroadmap/careerroadmap';
+import InterviewPrepPage from './interviewprep/InterviewPrepPage';
 
 export default class App extends React.Component {
 	constructor(props) {
@@ -21,7 +22,8 @@ export default class App extends React.Component {
 			ManageResumePage: <ManageResumePage />,
 			ProfilePage: <ProfilePage />,
 			MatchesPage: <MatchesPage />,
-			CareerRoadmapPage: <CareerRoadmapPage />
+			CareerRoadmapPage: <CareerRoadmapPage />,
+			InterviewPrepPage: <InterviewPrepPage />
 		};
 		this.state = {
 			currentPage: <LoginPage />,
