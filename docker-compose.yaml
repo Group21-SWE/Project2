@@ -8,6 +8,14 @@ services:
             - '5000:5000'
         networks:
             - ats-network
+        develop:
+            watch:
+                - action: rebuild
+                  path: ./backend
+                  target: /app
+                  ignore:
+                    - "**/__pycache__/"
+                    - "**/*.pyc"
     client:
         build:
             context: .
@@ -17,6 +25,13 @@ services:
             - '3000:3000'
         networks:
             - ats-network
+        develop:
+            watch:
+                - action: sync
+                  path: ./frontend/src
+                  target: /app/src
+                - action: rebuild
+                  path: ./frontend/package.json
 
 networks:
     ats-network:
