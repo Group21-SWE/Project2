@@ -32,6 +32,8 @@ services:
                   target: /app/src
                 - action: rebuild
                   path: ./frontend/package.json
+        environment:
+            - REACT_APP_GEMINI_API_KEY=${GEMINI_API_KEY}
 
 networks:
     ats-network:
