@@ -11,6 +11,7 @@ import axios from 'axios';
 import MatchesPage from './matches/MatchesPage';
 import CareerRoadmapPage from './careerroadmap/careerroadmap';
 import InterviewPrepPage from './interviewprep/InterviewPrepPage';
+import CoverLetterPage from './coverletter/CoverLetterPage';
 
 export default class App extends React.Component {
 	constructor(props) {
@@ -23,7 +24,8 @@ export default class App extends React.Component {
 			ProfilePage: <ProfilePage />,
 			MatchesPage: <MatchesPage />,
 			CareerRoadmapPage: <CareerRoadmapPage />,
-			InterviewPrepPage: <InterviewPrepPage />
+			InterviewPrepPage: <InterviewPrepPage />,
+			CoverLetterPage: <CoverLetterPage />
 		};
 		this.state = {
 			currentPage: <LoginPage />,
@@ -80,18 +82,24 @@ export default class App extends React.Component {
 	};
 
 	switchPage(pageName) {
-		const currentPage =
-			pageName == 'ProfilePage' ? (
+		let currentPage;
+		if (pageName === 'ProfilePage') {
+			currentPage = (
 				<ProfilePage
 					profile={this.state.userProfile}
 					updateProfile={this.updateProfile.bind(this)}
 				/>
-			) : (
-				this.state.mapRouter[pageName]
 			);
-		this.setState({
-			currentPage: currentPage
-		});
+		} else if (pageName === 'CoverLetterPage') {
+			currentPage = (
+				<CoverLetterPage
+					profile={this.state.userProfile}
+				/>
+			);
+		} else {
+			currentPage = this.state.mapRouter[pageName];
+		}
+		this.setState({ currentPage });
 	}
 
 	render() {

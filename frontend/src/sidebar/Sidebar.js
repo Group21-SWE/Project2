@@ -39,6 +39,10 @@ export default class Sidebar extends Component {
           <i class="fas fa-clipboard-question left-nav-icon"></i>
             <span class="left-nav-label">Interview Prep</span>
           </div>
+          <div onClick={() => this.props.switchPage('CoverLetterPage')}>
+          <i class="fas fa-envelope left-nav-icon"></i>
+            <span class="left-nav-label">Cover Letters</span>
+          </div>
           <div onClick={() => this.props.handleLogout()}>
             <i class="fas fa-sign-out-alt left-nav-icon"></i>
             <span class="left-nav-label">LogOut</span>
