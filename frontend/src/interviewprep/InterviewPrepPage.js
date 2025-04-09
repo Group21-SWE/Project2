@@ -7,14 +7,14 @@ export default class InterviewPrepPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        jobDescription: '',
-        interviewQuestions: [],
-        answers: {}, // Store answers by question index
-        feedback: {}, // Store feedback by question index
-        loadingFeedback: {}, // Track loading state for each question
-        loading: false,
-        error: null
-      };
+      jobDescription: '',
+      interviewQuestions: [],
+      answers: {}, 
+      feedback: {}, 
+      loadingFeedback: {}, 
+      loading: false,
+      error: null
+    };
   }
 
   handleInputChange = (event) => {
@@ -31,7 +31,6 @@ export default class InterviewPrepPage extends Component {
   }
 
   generateInterviewPrep = async () => {
-    // Don't run if the job description is empty
     if (!this.state.jobDescription.trim()) {
       this.setState({ error: 'Please enter a job description first.' });
       return;
@@ -41,8 +40,8 @@ export default class InterviewPrepPage extends Component {
 
     try {
       // Initialize the Gemini API
-      // You'll need to get an API key from https://makersuite.google.com/app/apikey
-      const API_KEY = process.env.REACT_APP_GEMINI_API_KEY; // Store this securely or use environment variables
+      // // You'll need to get an API key from https://makersuite.google.com/app/apikey
+      const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
       const genAI = new GoogleGenerativeAI(API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
@@ -160,18 +159,12 @@ export default class InterviewPrepPage extends Component {
   }
 
   render() {
-    const { jobDescription, interviewQuestions, answers, feedback, loading, loadingFeedback, error } = this.state;
+    const { jobDescription, interviewQuestions, answers, feedback, loadingFeedback, loading, error } = this.state;
 
     return (
       <Container>
-        <Row className="mb-4">
-          <Col>
-            <h1 className="text-center my-4">Interview Preparation</h1>
-            <p className="lead text-center">
-              Generate customized interview questions based on job descriptions
-            </p>
-          </Col>
-        </Row>
+        <h1 className="text-center my-4">Interview Preparation</h1>
+        <p className="lead text-center">Generate customized interview questions based on job descriptions</p>
 
         <Row className="mb-4">
           <Col>
@@ -230,17 +223,14 @@ export default class InterviewPrepPage extends Component {
                   <ol className="interview-questions-list">
                     {interviewQuestions.map((question, index) => (
                       <li key={index} className="mb-5">
-                        {/* Question */}
                         <div className="question font-weight-bold mb-2">{question.question}</div>
                         
-                        {/* Hint */}
                         {question.hint && (
                           <div className="hint text-muted mb-3">
                             <small><strong>Hint:</strong> {question.hint}</small>
                           </div>
                         )}
                         
-                        {/* Answer text area */}
                         <Form.Group className="mt-3">
                           <Form.Label>Your Answer:</Form.Label>
                           <Form.Control
@@ -252,7 +242,6 @@ export default class InterviewPrepPage extends Component {
                           />
                         </Form.Group>
                         
-                        {/* Submit button */}
                         <Button 
                           variant="outline-primary"
                           size="sm"
@@ -277,7 +266,6 @@ export default class InterviewPrepPage extends Component {
                           )}
                         </Button>
                         
-                        {/* Feedback display */}
                         {feedback[index] && (
                           <Card className="mt-3 bg-light">
                             <Card.Body>
@@ -294,7 +282,6 @@ export default class InterviewPrepPage extends Component {
             </Col>
           </Row>
         )}
-
       </Container>
     );
   }
