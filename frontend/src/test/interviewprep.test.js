@@ -305,7 +305,7 @@ describe('InterviewPrepPage Component', () => {
       
       // Reset mock for the feedback call
       mockGenerateContent.mockReset();
-      mockGenerateContent.mockRejectedValue(new Error('API Error'));
+      mockGenerateContent.mockRejectedValue(new Error('APIError'));
       
       const feedbackButton = screen.getByText('Get Feedback');
       fireEvent.click(feedbackButton);
