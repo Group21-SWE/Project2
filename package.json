@@ -3,5 +3,13 @@
     "mongodb": "^6.15.0",
     "pdfjs-dist": "^5.1.91",
     "react-router-dom": "^7.5.0"
-  }
+  },
+  "scripts": {
+		"pre-deploy": "npm run build",
+		"deploy": "gh-pages -d build",
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	}
 }
