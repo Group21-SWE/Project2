@@ -46,7 +46,6 @@ export default class CoverLetterPage extends Component {
     }
   };
 
-
   extractTextFromPDF = async (file) => {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -60,7 +59,6 @@ export default class CoverLetterPage extends Component {
     }
     return text;
   };
-
 
   generateCoverLetter = async () => {
     if (!this.state.jobDescription.trim() || !this.state.jobTitle.trim() || !this.state.companyName.trim()) {
