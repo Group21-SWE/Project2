@@ -1,16 +1,13 @@
-name: frontendTesting
-run-name: ${{ github.actor }} is testing her frontend
+name: Jest Tests
+
 on: [push]
+
 jobs:
-  run-defined-frontend-tests:
+  build:
+
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '14'
-      - run: npm ci
-      - run: npm run test
+    - uses: actions/checkout@v1
+    - name: Run Jest
+      uses: stefanoeb/jest-action@1.0.3
