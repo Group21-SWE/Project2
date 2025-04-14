@@ -8,3 +8,7 @@ pymongo==4.5.0
 PyYAML
 requests==2.25.0
 werkzeug==2.2.2
+google-generativeai
+PyPDF2
+google
+dotenv

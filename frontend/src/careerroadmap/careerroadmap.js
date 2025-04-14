@@ -1,134 +1,171 @@
-import React, { Component } from 'react'
-import $ from 'jquery'
-import { Container, Row, Col, Card, Button } from 'react-bootstrap'
+import React, { Component } from 'react';
+import { Container, Row, Col, Card, Form, Button, Spinner } from 'react-bootstrap';
+import $, { Callbacks, nodeName } from 'jquery';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { CONSTANTS } from '../data/Constants';
+import * as pdfjsLib from 'pdfjs-dist';
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-
-export default class CareerRoadmapPage extends Component {
-  constructor (props) {
-    super(props)
+export default class CareerRoadMap extends Component {
+  constructor(props) {
+    super(props);
     this.state = {
-      paths: [],
-      trends:[],
-      certifications: []
-    }
+      careerRoadMap: null,
+      loading: false,
+      error: null
+    };
+  }
 
-    console.log("***");
-    console.log(localStorage.getItem('token'));
-    this.generateCareerRoadmap();
+  handleInputChange = (event) => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  }
+
+  fetchResumeFile = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/resume", {
+        method: "GET",
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token'),
+          'Access-Control-Allow-Origin': 'http://127.0.0.1:3000',
+          'Access-Control-Allow-Credentials': 'true',
+        }
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch resume");
+
+      const blob = await response.blob();
+      return new File([blob], "resume.pdf", { type: blob.type });
+    } catch (error) {
+      console.error("Error fetching resume:", error);
+      this.setState({ error: "Could not load resume. Please upload one first." });
+      return null;
+    }
+  };
+
+
+  extractTextFromPDF = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(item => item.str).join(' ');
+      text += pageText + '\n';
+    }
+    return text;
+  };
+
+
+  generateCareerRoadMap = async () => {
+    // if (!this.state.jobDescription.trim() || !this.state.jobTitle.trim() || !this.state.companyName.trim()) {
+    //   this.setState({ error: 'Please enter a job information first.' });
+    //   return;
+    // }
+
+    this.setState({ loading: true, error: null });
+
+    try {
+      // Initialize the Gemini API
+      // You'll need to get an API key from https://makersuite.google.com/app/apikey
+      const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
+      const genAI = new GoogleGenerativeAI(API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+
+
+      //get resume and extract text
+      const resumeFile = await this.fetchResumeFile();
+      const resumeText = resumeFile ? await this.extractTextFromPDF(resumeFile) : '';
+
+      console.log(resumeText); // Debug log
+
+      // Create prompt for career roadmap
+      const prompt = `
+      You are given a resume. Based on the candidate's education, work experience, and technical skills, generate a  response with the following three fields only:
+
+      - "skill_building_paths": A list of recommended learning paths relevant to the candidate's profile.
+      - "real_time_job_market_trends": A list of current job trends matching the candidate's background.
+      - "certifications": A list of useful certifications the candidate could pursue next.
+      
+      Note that this text has to be human readable.
+      ❗Important:
+      - Do not include any explanation, headers, or markdown.
+      - Respond with only the raw text ,nothing else.
+      
+      Here is the resume:
+
+        Resume:
+        ${resumeText}
+        
+        Return ONLY the career roadmap body with no additional text. Do not include any greetings or salutations.
+      `;
+
+      // Generate content with Gemini
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+
+      console.log('Generated Text:', text); // Debug log
+      this.setState({ careerRoadMap: text });
+    }
+    catch (error) {
+      console.error('Error generating career roadmap:', error);
+      this.setState({ error: 'Failed to generate career roadmap. Please try again.' });
+    }
+    finally {
+      this.setState({ loading: false });
+    }
 
   }
 
-  async generateCareerRoadmap () {
-    $.ajax({
-          url: 'http://127.0.0.1:5000/career_roadmap',
-          method: 'GET',
-          headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('token'),
-            'Access-Control-Allow-Origin': 'http://127.0.0.1:3000',
-            'Access-Control-Allow-Credentials': 'true'
-          },
-      credentials: 'include',
-          success: (message, textStatus, response) => {
-            console.log(response.getResponseHeader('x-fileName'))
-            this.setState({ paths: response.data['skill-building paths']});
-            this.setState({ trends: response.data['real-time job market trends']});
-            this.setState({ certifications: response.data['certifications']});
-          },
-          error: (xhr, textStatus, errorThrown) => {
-            console.error('Error:', textStatus, errorThrown);
-            // Handle the error (e.g., show a message to the user)
-            this.setState({ error: errorThrown });
-          }
-      })
-    /*
-    const url = `http://127.0.0.1:5000/career_roadmap`;
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
-          'Access-Control-Allow-Origin': 'http://127.0.0.1:3000',
-          'Access-Control-Allow-Credentials': 'true'
-        },
-        credentials: 'include',
-        mode: 'cors'
-    });
-    if (!response.ok || response.status != 200) {
-        throw new Error('Network response was not ok '+response);
-    }
-    const data = response.data.json();
-    this.setState({ paths: data['skill-building paths']});
-    this.setState({ trends: data['real-time job market trends']});
-    this.setState({ certifications: data['certifications']});
-    */
-}
-
-render() {
-    const { paths, trends, certifications } = this.state;
-  
+  render() {
     return (
       <Container>
-        <h1 className="text-center my-4">Career Roadmap</h1>
-  
-        {/* Skill-Building Paths Section */}
-        <Row className="mb-4">
-          <Col>
+        <Row className="justify-content-center my-5">
+          <Col md={8}>
             <Card>
-              <Card.Header as="h5">Skill-Building Paths</Card.Header>
               <Card.Body>
-                {paths.length > 0 ? (
-                  <ul>
-                    {paths.map((path, index) => (
-                      <li key={index}>{path}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No skill-building paths available.</p>
-                )}
+                <Card.Title className="text-center">Generate Career Roadmap</Card.Title>
+                <Form>
+                  {this.state.error && (
+                    <div className="text-danger text-center my-2">{this.state.error}</div>
+                  )}
+                  <Button
+                    variant="primary"
+                    onClick={this.generateCareerRoadMap}
+                    disabled={this.state.loading}
+                  >
+                    {this.state.loading ? (
+                      <>
+                        Generating...
+                        <Spinner animation="border" size="sm" className="ms-2" />
+                      </>
+                    ) : (
+                      'Generate Career Roadmap'
+                    )}
+                  </Button>
+                </Form>
               </Card.Body>
             </Card>
-          </Col>
-        </Row>
-  
-        {/* Real-Time Job Market Trends Section */}
-        <Row className="mb-4">
-          <Col>
-            <Card>
-              <Card.Header as="h5">Real-Time Job Market Trends</Card.Header>
-              <Card.Body>
-                {trends.length > 0 ? (
-                  <ul>
-                    {trends.map((trend, index) => (
-                      <li key={index}>{trend}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No job market trends available.</p>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-  
-        {/* Certifications Section */}
-        <Row className="mb-4">
-          <Col>
-            <Card>
-              <Card.Header as="h5">Certifications</Card.Header>
-              <Card.Body>
-                {certifications.length > 0 ? (
-                  <ul>
-                    {certifications.map((certification, index) => (
-                      <li key={index}>{certification}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No certifications available.</p>
-                )}
-              </Card.Body>
-            </Card>
+
+            {this.state.careerRoadMap && (
+              <Card className="mt-4">
+                <Card.Body>
+                  <Card.Title>Generated Career Roadmap</Card.Title>
+                  <div style={{ fontSize: '0.85em', color: '#888' }}>
+                    The career roadmap does not include greetings or salutations. Verify content before using.
+                  </div>
+                  <Card.Text>{this.state.careerRoadMap}</Card.Text>
+                </Card.Body>
+              </Card>
+            )}
           </Col>
         </Row>
       </Container>
     );
   }
+
 }
