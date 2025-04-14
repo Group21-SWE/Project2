@@ -24,27 +24,6 @@ export default class CoverLetterPage extends Component {
     this.setState({ [name]: value });
   }
 
-
-  // fetchResumeFile = async () => {
-  //   try {
-  //     const response = await fetch("http://localhost:5000/resume", {
-  //       method: "GET",
-  //       headers: {
-  //         Authorization: `Bearer ${this.props.token}`, // Replace with actual token logic
-  //       },
-  //     });
-
-  //     if (!response.ok) throw new Error("Failed to fetch resume");
-
-  //     const blob = await response.blob();
-  //     return new File([blob], "resume.pdf", { type: blob.type });
-  //   } catch (error) {
-  //     console.error("Error fetching resume:", error);
-  //     this.setState({ error: "Could not load resume. Please upload one first." });
-  //     return null;
-  //   }
-  // };
-
   fetchResumeFile = async () => {
     try {
       const response = await fetch("http://127.0.0.1:5000/resume", {
@@ -67,7 +46,6 @@ export default class CoverLetterPage extends Component {
     }
   };
 
-
   extractTextFromPDF = async (file) => {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -81,7 +59,6 @@ export default class CoverLetterPage extends Component {
     }
     return text;
   };
-
 
   generateCoverLetter = async () => {
     if (!this.state.jobDescription.trim() || !this.state.jobTitle.trim() || !this.state.companyName.trim()) {
