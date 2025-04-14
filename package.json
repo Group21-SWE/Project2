@@ -1,4 +1,9 @@
 {
+  "jest": {
+    "roots": [
+      "<rootDir>/frontend/src"
+    ]
+  },
   "dependencies": {
     "mongodb": "^6.15.0",
     "pdfjs-dist": "^5.1.91",
