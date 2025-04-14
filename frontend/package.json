@@ -33,7 +33,7 @@
 		"deploy": "gh-pages -d build",
 		"start": "react-scripts start",
 		"build": "react-scripts build",
-		"test": "react-scripts test --coverage --watchAll --silent",
+		"test": "react-scripts test --coverage --silent",
 		"eject": "react-scripts eject"
 	},
 	"eslintConfig": {
