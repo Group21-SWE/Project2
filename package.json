@@ -1,8 +1,9 @@
 {
   "jest": {
-    "roots": [
-      "<rootDir>/frontend/src"
-    ]
+    "roots": ["<rootDir>/frontend/src"],
+    "collectCoverage": true,
+    "coverageReporters": ["lcov", "text"],
+    "coverageDirectory": "coverage"
   },
   "dependencies": {
     "mongodb": "^6.15.0",
