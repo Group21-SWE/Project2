@@ -156,7 +156,7 @@ export default class CareerRoadMap extends Component {
                 <Card.Body>
                   <Card.Title>Generated Career Roadmap</Card.Title>
                   <div style={{ fontSize: '0.85em', color: '#888' }}>
-                    The career roadmap does not include greetings or salutations. Verify content before using.
+                    Verify content before using.
                   </div>
                   <Card.Text>{this.state.careerRoadMap}</Card.Text>
                 </Card.Body>

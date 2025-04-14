@@ -16,10 +16,7 @@ from dotenv import load_dotenv
 import os
 from fake_useragent import UserAgent
 
-
 import yaml
-
-
 
 import requests
 from authlib.integrations.flask_client import OAuth
