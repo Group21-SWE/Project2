@@ -1,20 +1,17 @@
 # J-Tracker - Your Job Tracking Assistant
 
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-[![GitHub license](https://img.shields.io/github/license/ncsu-csc-510/Project2)](https://github.com/ncsu-csc-510/Project2/blob/main/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/ncsu-csc-510/Project2)](https://github.com/Group21-SWE/Project2/blob/main/LICENSE)
 [![DOI](https://zenodo.org/badge/945674652.svg)](https://doi.org/10.5281/zenodo.15211854)
-[![codecov](https://codecov.io/gh/ncsu-csc-510/Project2/branch/main/graph/badge.svg)](https://codecov.io/gh/kingan1/application-tracking-system)
-[![GitHub issues](https://img.shields.io/github/issues/ncsu-csc-510/Project2)](https://github.com/ncsu-csc-510/Project2/issues)
-[![Github closes issues](https://img.shields.io/github/issues-closed-raw/ncsu-csc-510/Project2)](https://github.com/ncsu-csc-510/Project2/issues?q=is%3Aissue+is%3Aclosed)
+[![codecov](https://codecov.io/gh/Group21-SWE/Project2/graph/badge.svg?token=QR4R64FM4M)](https://codecov.io/gh/Group21-SWE/Project2)
+[![GitHub issues](https://img.shields.io/github/issues/ncsu-csc-510/Project2)](https://github.com/Group21-SWE/Project2/issues)
+[![Github closed issues](https://img.shields.io/github/issues-closed-raw/ncsu-csc-510/Project2)](https://github.com/Group21-SWE/Project2/issues?q=is%3Aissue%20state%3Aclosed)
 ![GitHub top language](https://img.shields.io/github/languages/top/ncsu-csc-510/Project2)
-![Test Status](https://github.com/ncsu-csc-510/Project2/workflows/Test/badge.svg)
-[![GitHub Tag](https://img.shields.io/github/v/tag/ncsu-csc-510/Project2?style=plastic)](https://github.com/ncsu-csc-510/Project2/releases)
-[![GitHub forks](https://img.shields.io/github/forks/ncsu-csc-510/Project2)](https://github.com/ncsu-csc-510/Project2/network)
-[![GitHub stars](https://img.shields.io/github/stars/ncsu-csc-510/Project2)](https://github.com/ncsu-csc-510/Project2/stargazers)
-[![GitHub contributors](https://img.shields.io/github/contributors/ncsu-csc-510/Project2)](https://github.com/ncsu-csc-510/Project2/graphs/contributors)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ncsu-csc-510/Project2)](https://github.com/ncsu-csc-510/Project2/graphs/commit-activity)
+[![GitHub Tag](https://img.shields.io/github/v/tag/ncsu-csc-510/Project2?style=plastic)](https://github.com/Group21-SWE/Project2/releases)
+[![GitHub forks](https://img.shields.io/github/forks/ncsu-csc-510/Project2)](https://github.com/Group21-SWE/Project2/forks)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ncsu-csc-510/Project2)](https://github.com/Group21-SWE/Project2/graphs/commit-activity)
+[![Collaborators](https://img.shields.io/badge/Collaborators-3-orange.svg?style=flat)](https://github.com/Group21-SWE/Project2/graphs/contributors)
 
-[![Collaborators](https://img.shields.io/badge/Collaborators-3-orange.svg?style=flat)](https://github.com/ncsu-csc-510/Project2/graphs/contributors)
 [![Documentation Badge](https://img.shields.io/badge/API_Documentation-pdoc-blue.svg)](https://lemon-desert-093c6c80f.2.azurestaticapps.net/)
 [![Documentation Badge](https://img.shields.io/badge/APP_Documentation-compodoc-blue.svg)](https://victorious-sky-08a81ed0f.2.azurestaticapps.net/)
 
