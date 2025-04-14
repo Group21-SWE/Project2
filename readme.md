@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 [![GitHub license](https://img.shields.io/github/license/ncsu-csc-510/Project2)](https://github.com/ncsu-csc-510/Project2/blob/main/LICENSE)
-[![DOI](https://zenodo.org/badge/426259091.svg)](https://zenodo.org/badge/latestdoi/426259091)
+[![DOI](https://zenodo.org/badge/945674652.svg)](https://doi.org/10.5281/zenodo.15211854)
 [![codecov](https://codecov.io/gh/ncsu-csc-510/Project2/branch/main/graph/badge.svg)](https://codecov.io/gh/kingan1/application-tracking-system)
 [![GitHub issues](https://img.shields.io/github/issues/ncsu-csc-510/Project2)](https://github.com/ncsu-csc-510/Project2/issues)
 [![Github closes issues](https://img.shields.io/github/issues-closed-raw/ncsu-csc-510/Project2)](https://github.com/ncsu-csc-510/Project2/issues?q=is%3Aissue+is%3Aclosed)
