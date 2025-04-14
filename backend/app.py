@@ -11,14 +11,12 @@ import random
 from flask import Flask, jsonify, request, send_file, redirect, url_for, session
 from flask_mongoengine import MongoEngine
 from flask_cors import CORS, cross_origin
+from dotenv import load_dotenv
 
 import os
 from fake_useragent import UserAgent
 
-
 import yaml
-
-
 
 import requests
 from authlib.integrations.flask_client import OAuth
