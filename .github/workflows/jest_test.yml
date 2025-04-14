@@ -1,16 +1,16 @@
-name: Jest Tests
-on: [push, pull_request]
+name: frontendTesting
+run-name: ${{ github.actor }} is testing her frontend
+on: [push]
 jobs:
-  build:
+  run-defined-frontend-tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 14
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 14
-      - name: Install dependencies
-        run: npm install
-      - name: Run tests
-        run: npm test
-    # help
+          node-version: '14'
+      - run: npm ci
+      - run: npm run test
