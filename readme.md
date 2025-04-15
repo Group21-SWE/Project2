@@ -20,7 +20,7 @@ Our software maintains a record of the work you have wish-listed. It records tho
 
 ## New Features in Project2
 
-🎥[Project2 Demo Video](https://drive.google.com/file/d/1dzq3PYMK-vSxBg1yp8uFzMbsFr2sq76F/view?usp=drive_link) 
+🎥[Project2 Demo Video](https://youtu.be/23MS7p4_GZE) 
 
 ## ⭐ Highlight of Project2 ⭐
 ### Dockerization 🗃️
