@@ -1,27 +1,36 @@
 # J-Tracker - Your Job Tracking Assistant
 
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-[![GitHub license](https://img.shields.io/github/license/ncsu-csc-510/Project2)](https://github.com/Group21-SWE/Project2/blob/main/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/Group21-SWE/Project2)](https://github.com/Group21-SWE/Project2/blob/main/LICENSE)
 [![DOI](https://zenodo.org/badge/945674652.svg)](https://doi.org/10.5281/zenodo.15211854)
 [![codecov](https://codecov.io/gh/Group21-SWE/Project2/graph/badge.svg?token=QR4R64FM4M)](https://codecov.io/gh/Group21-SWE/Project2)
-[![GitHub issues](https://img.shields.io/github/issues/ncsu-csc-510/Project2)](https://github.com/Group21-SWE/Project2/issues)
-[![Github closed issues](https://img.shields.io/github/issues-closed-raw/ncsu-csc-510/Project2)](https://github.com/Group21-SWE/Project2/issues?q=is%3Aissue%20state%3Aclosed)
-![GitHub top language](https://img.shields.io/github/languages/top/ncsu-csc-510/Project2)
-[![GitHub Tag](https://img.shields.io/github/v/tag/ncsu-csc-510/Project2?style=plastic)](https://github.com/Group21-SWE/Project2/releases)
-[![GitHub forks](https://img.shields.io/github/forks/ncsu-csc-510/Project2)](https://github.com/Group21-SWE/Project2/forks)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ncsu-csc-510/Project2)](https://github.com/Group21-SWE/Project2/graphs/commit-activity)
+[![GitHub issues](https://img.shields.io/github/issues/Group21-SWE/Project2)](https://github.com/Group21-SWE/Project2/issues)
+[![Github closed issues](https://img.shields.io/github/issues-closed-raw/Group21-SWE/Project2)](https://github.com/Group21-SWE/Project2/issues?q=is%3Aissue%20state%3Aclosed)
+![GitHub top language](https://img.shields.io/github/languages/top/Group21-SWE/Project2)
+[![GitHub Tag](https://img.shields.io/github/v/tag/Group21-SWE/Project2?style=plastic)](https://github.com/Group21-SWE/Project2/releases)
+[![GitHub forks](https://img.shields.io/github/forks/Group21-SWE/Project2)](https://github.com/Group21-SWE/Project2/forks)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Group21-SWE/Project2/main)](https://github.com/Group21-SWE/Project2/graphs/commit-activity)
 [![Collaborators](https://img.shields.io/badge/Collaborators-3-orange.svg?style=flat)](https://github.com/Group21-SWE/Project2/graphs/contributors)
-
-<!-- <p align="center"><img width="700" src="https://github.com/ncsu-csc-510/Project2/blob/main/media/video.gif"></p> -->
 
 The internship application and job application process is no picnic. Job application management is time-consuming. With the referrals and deadlines, the whole process can get daunting. Our app enables you to track and organize your job application process, and manage it, without the inconvenience of clunky Excel spreadsheets.
 
 Our software maintains a record of the work you have wish-listed. It records those companies that you have applied for and records any rejections. Instead of making the user visit each company's website for prospects, our software enables the applicant to look for them directly using simple keywords. Any possible offer of work may then be wish-listed by the applicant.
 
-## New Features in Project2
+## New Features in Project 3
 
-🎥[Project2 Demo Video](https://youtu.be/23MS7p4_GZE) 
+🎥 [Project 3 Demo Video](https://www.youtube.com/watch?v=23MS7p4_GZE) 
 
+## ⭐ Highlight of Project 3 ⭐
+### ⭐ More AI Features and Updates!
+1. Generate cover letters using AI
+2. Create practice interview questions and get feedback on answers
+3. Create a personalized career roadmap based on your skills
+4. Add a profile picture to your profile!
+
+#### Bug fixes
+1. Sped up build time of backend from 1000s to 10-20s
+
+<!-- 
 ## ⭐ Highlight of Project2 ⭐
 ### Dockerization 🗃️
 Containerizing the application with docker has helped us achieve 2 significant things
@@ -38,7 +47,7 @@ Containerizing the application with docker has helped us achieve 2 significant t
 1. OAuth Restoration
 2. Docker Restoration Repair
 3. Authentication into the application randomly not working.
-3. Resolved profile update errors and improved system stability and efficiency
+3. Resolved profile update errors and improved system stability and efficiency -->
 
 
 ---
@@ -59,7 +68,7 @@ Containerizing the application with docker has helped us achieve 2 significant t
 
 ## Basic Design:
 
-![Basic Design](https://github.com/ncsu-csc-510/Project2/blob/main/resources/Overall%20Design.PNG)
+![Basic Design](resources/Overall%20Design.PNG)
 
 ## Samples:
 
@@ -89,14 +98,11 @@ Users can add or update information to their profile, such as their personal inf
 
 4. We have incorporated an AI model to recommend jobs to the user. Instead of just fetching jobs from google, our code will now based off the preferences of the user, their skills, their experience will curate job opportunities for the user. In this way, the user is only recommended jobs that fit their application requirements and they don’t have to waste time reading the job description thoroughly
 
-
-
-<p align="center"><img width="700" src="https://github.com/ncsu-csc-510/Project2/blob/main/media/media1.png"></p> 
-<p align="center"><img width="700" src="https://github.com/ncsu-csc-510/Project2/blob/main/media/media2.png"></p>
-<p align="center"><img width="700" src="https://github.com/ncsu-csc-510/Project2/blob/main/media/media3.png"></p>
-<p align="center"><img width="700" src="https://github.com/ncsu-csc-510/Project2/blob/main/media/media4.png"></p>
-<p align="center"><img width="700" src="https://github.com/ncsu-csc-510/Project2/blob/main/media/media6.png"></p>
-
+<p align="center"><img width="700" src="resources/media1.png"></p> 
+<p align="center"><img width="700" src="resources/media2.png"></p>
+<p align="center"><img width="700" src="resources/media3.png"></p>
+<p align="center"><img width="700" src="resources/media4.png"></p>
+<p align="center"><img width="700" src="resources/media6.png"></p>
 
 
 ### ApplicationPage
@@ -111,17 +117,33 @@ Here, user is able to see different jobs which would be recommended to them acco
 
 <p align="center"><img width="700" src="./resources/Recommendjobspage.png"></p>
 
-### FinalViewOfDashboard
+### Create a personalized career roadmap
 
-<p align="center"><img width="700" src="https://github.com/ncsu-csc-510/Project2/blob/main/media/media5.png"></p>
+Using the user's resume and skills, create a roadmap with skill building paths, real time job market trends and certifications.
 
+<p align="center"><img width="500" src="./resources/CareerPath.png"></p>
+
+### Generate Cover Letters
+
+The user can input the job title and job description and get a professional cover letter.
+
+<p align="center"><img width="500" src="./resources/CoverLetterGeneration.png"></p>
+
+### Practice Interview Questions
+
+The user can enter the job description and get questions that might be asked in an interview. Then, the user can respond and get feedback on their answers.
+
+<p align="center"><img width="500" src="./resources/InterviewQuestions.png"></p>
+
+<p align="center"><img width="500" src="./resources/Feedback.png">
 
 ## Future Scope:
 
-- AI Job Matching: Advanced AI predicts best-fit jobs and offers real-time market insights based on user skills.
-- Automated Tracking: AI tracks application statuses via parsing and updates progress from job portals.
-- Interview Prep: AI-driven mock interviews with real-time feedback and role-specific questions.
-- Multi-Platform Sync: Syncs with LinkedIn, job boards, and ATS; mobile app for real-time updates.
+- Resume Feedback: Get feedback on your resume from AI both in general, and then ask to tailor it to a specific job description.
+- Covert from OpenAI ChatGPT to Google Gemini: ChatGPT requires payment for tokens, so switching to Gemini, which has a free plan, makes the project more accessible.
+- Add certifications and accomplishment sections on profile: Add a new section to allow for certifications, accomplishments, published papers, etc.
+- Autofill Job Information: Autofill information about jobs when putting them into the applications page by using the link to the job.
+- Curriculum Vitae Generator: Convert your accomplishments, past jobs, published papers, etc into a CV.
 
 ## Technologies Used:
 
